@@ -90,5 +90,5 @@ Note this will take a very long time to run:
     % mvn -Dtest=ReferenceCompareTest_10000 test [Very long test]
     % mvn -Dtest=ReferenceCompareTest_100000 test [Ridiculously long test]
 
-If any errors occur, please raise an issue at https://github.com/aled/jsi/issues
+If any errors occur, please raise an issue at https://github.com/aled/jsi/issues.  
 
