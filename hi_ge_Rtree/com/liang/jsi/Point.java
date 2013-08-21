@@ -1,70 +1,25 @@
-//   Point.java
-//   Java Spatial Index Library
-//   Copyright (C) 2002-2005 Infomatiq Limited.
-//
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License, or (at your option) any later version.
-//
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-package com.infomatiq.jsi;
+package com.liang.jsi;
 
 /**
- * Currently hardcoded to 2 dimensions, but could be extended.
+ * The Point interface represents a point in a k-dimensional space.
+ * It is used to specify point keys that index into spatial data
+ * structures.
  */
-public class Point {
+public interface Point<Coord> {
   /**
-   * The (x, y) coordinates of the point.
-   */
-  public float x, y;
-
-  /**
-   * Constructor.
+   * Returns the value of the coordinate of the given dimension.
    *
-   * @param x The x coordinate of the point
-   * @param y The y coordinate of the point
+   * @return The value of the coordinate of the given dimension.
+   * @exception IllegalArgumentException if the Point does not
+   *            support the dimension.
    */
-  public Point(float x, float y) {
-    this.x = x;
-    this.y = y;
-  }
+  public Coord getCoord(int dimension);
 
   /**
-   * Copy from another point into this one
+   * Returns the number of dimensions in the point.
+   *
+   * @return The number of dimensions in the point.
    */
-  public void set(Point other) {
-    x = other.x;
-    y = other.y;
-  }
-
-  /**
-   * Print as a string in format "(x, y)"
-   */
-  @Override
-  public String toString() {
-    return "(" + x + ", " + y + ")";
-  }
-
-  /**
-   * @return X coordinate rounded to an int
-   */
-  public int xInt() {
-    return Math.round(x);
-  }
-
-  /**
-   * @return Y coordinate rounded to an int
-   */
-  public int yInt() {
-    return Math.round(y);
-  }
+  public int getDimensions();
 }
