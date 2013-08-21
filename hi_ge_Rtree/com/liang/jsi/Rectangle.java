@@ -2,7 +2,7 @@
 
 package com.liang.jsi;
 
-class Rectangle< Coord extends Comparable<? super Coord>> {
+public class Rectangle< Coord extends Comparable<? super Coord>> {
 
     public GenericPoint min;
     public GenericPoint max;
