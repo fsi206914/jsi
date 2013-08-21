@@ -21,6 +21,8 @@ package com.liang.jsi.rtree;
 
 import java.io.Serializable;
 import com.liang.jsi.Rectangle;
+import com.liang.jsi.GenericPoint;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +55,7 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
     void addEntry(Rectangle a_Rect) {
         NodeRect[entryCount] = a_Rect;
         entryCount++;
+        updateMBR(a_Rect);
     }
 
   // Return the index of the found entry, or -1 if not found
@@ -82,70 +85,89 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
 
   }
 
+
   // deletedMin/MaxX/Y is a rectangle that has just been deleted or made smaller.
   // Thus, the MBR is only recalculated if the deleted rectangle influenced the old MBR
     void recalculateMBRIfInfluencedBy(Rectangle a_DeleteRect) {
 
-        Rectangle Rect = (Rectangle)this;
-        for(int i=0; i< Rect.dim; i++){
-            Rect.min.setCurrDimComp(i);
+        for(int i=0; i< this.dim; i++){
+            this.min.setCurrDimComp(i);
 
-        if (Rect.min.comapreTo(a_DeleteRect.min ) == 0 || Rect.max.comapreTo( a_DeleteRect.max ) ==0 ){
+        if (this.min.compareTo(a_DeleteRect.min ) == 0 || this.max.compareTo( a_DeleteRect.max ) == 0 ){
             recalculateMBR();
             return;
+            }
         }
     }
 
-  void recalculateMBR() {
-    mbrMinX = entriesMinX[0];
-    mbrMinY = entriesMinY[0];
-    mbrMaxX = entriesMaxX[0];
-    mbrMaxY = entriesMaxY[0];
+    void recalculateMBR() {
 
-    for (int i = 1; i < entryCount; i++) {
-      if (entriesMinX[i] < mbrMinX) mbrMinX = entriesMinX[i];
-      if (entriesMinY[i] < mbrMinY) mbrMinY = entriesMinY[i];
-      if (entriesMaxX[i] > mbrMaxX) mbrMaxX = entriesMaxX[i];
-      if (entriesMaxY[i] > mbrMaxY) mbrMaxY = entriesMaxY[i];
+        this.min.setCoord( NodeRect[0].min);
+        this.max.setCoord( NodeRect[0].max);
+
+
+        for (int i = 1; i < entryCount; i++)
+          for(int j=0; j<this.dim; j++)
+          {
+              this.min.setCurrDimComp(j);
+              if(this.min.compareTo(NodeRect[i].min) > 0 )
+                this.min.setCoord( j, NodeRect[i].min.getCoord(j));
+
+              if(this.max.compareTo(NodeRect[i].max) < 0 )
+                this.max.setCoord( j, NodeRect[i].max.getCoord(j));
+          }
     }
-  }
 
-  /**
-   * eliminate null entries, move all entries to the start of the source node
-   */
-  void reorganize(RTree rtree) {
-    int countdownIndex = rtree.maxNodeEntries - 1;
-    for (int index = 0; index < entryCount; index++) {
-      if (ids[index] == -1) {
-         while (ids[countdownIndex] == -1 && countdownIndex > index) {
-           countdownIndex--;
-         }
-         entriesMinX[index] = entriesMinX[countdownIndex];
-         entriesMinY[index] = entriesMinY[countdownIndex];
-         entriesMaxX[index] = entriesMaxX[countdownIndex];
-         entriesMaxY[index] = entriesMaxY[countdownIndex];
-         ids[index] = ids[countdownIndex];
-         ids[countdownIndex] = -1;
-      }
+
+    void updateMBR(Rectangle a_NewRect ) {
+
+          for(int j=0; j<this.dim; j++)
+          {
+              this.min.setCurrDimComp(j);
+              if(this.min.compareTo(a_NewRect.min) > 0 )
+                this.min.setCoord( j, a_NewRect.min.getCoord(j));
+
+              if(this.max.compareTo(a_NewRect.max) < 0 )
+                this.max.setCoord( j, a_NewRect.max.getCoord(j));
+          }
     }
-  }
 
-  public int getEntryCount() {
-    return entryCount;
-  }
-
-  public int getId(int index) {
-    if (index < entryCount) {
-      return ids[index];
-    }
-    return -1;
-  }
-
-  boolean isLeaf() {
-    return (level == 1);
-  }
-
-  public int getLevel() {
-    return level;
-  }
+//  /**
+//   * eliminate null entries, move all entries to the start of the source node
+//   */
+//  void reorganize(RTree rtree) {
+//    int countdownIndex = rtree.maxNodeEntries - 1;
+//    for (int index = 0; index < entryCount; index++) {
+//      if (ids[index] == -1) {
+//         while (ids[countdownIndex] == -1 && countdownIndex > index) {
+//           countdownIndex--;
+//         }
+//         entriesMinX[index] = entriesMinX[countdownIndex];
+//         entriesMinY[index] = entriesMinY[ ];
+//         entriesMaxX[index] = entriesMaxX[countdownIndex];
+//         entriesMaxY[index] = entriesMaxY[countdownIndex];
+//         ids[index] = ids[countdownIndex];
+//         ids[countdownIndex] = -1;
+//      }
+//    }
+//  }
+//
+//  public int getEntryCount() {
+//    return entryCount;
+//  }
+//
+//  public int getId(int index) {
+//    if (index < entryCount) {
+//      return ids[index];
+//    }
+//    return -1;
+//  }
+//
+//  boolean isLeaf() {
+//    return (level == 1);
+//  }
+//
+//  public int getLevel() {
+//    return level;
+//  }
 }
