@@ -35,70 +35,66 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
     int nodeId = 0;
     int level;
     int entryCount;
+    int maxEntryCount;
 
     Node parent;
     LinkedList<Node> children;
+    Rectangle[] NodeRect;
 
-    public Node(Class T, int ndims) {
+    public Node(Class T, int ndims, int a_maxNodeEntries) {
         super(T,ndims);
         parent = null;
+        maxEntryCount = a_maxNodeEntries;
+        children = new LinkedList<Node>();
+        NodeRect = new Rectangle[maxEntryCount];
+        entryCount=0;
     }
 
-  void addEntry(float minX, float minY, float maxX, float maxY, int id) {
-    ids[entryCount] = id;
-    entriesMinX[entryCount] = minX;
-    entriesMinY[entryCount] = minY;
-    entriesMaxX[entryCount] = maxX;
-    entriesMaxY[entryCount] = maxY;
-
-    if (minX < mbrMinX) mbrMinX = minX;
-    if (minY < mbrMinY) mbrMinY = minY;
-    if (maxX > mbrMaxX) mbrMaxX = maxX;
-    if (maxY > mbrMaxY) mbrMaxY = maxY;
-
-    entryCount++;
-  }
+    void addEntry(Rectangle a_Rect) {
+        NodeRect[entryCount] = a_Rect;
+        entryCount++;
+    }
 
   // Return the index of the found entry, or -1 if not found
-  int findEntry(float minX, float minY, float maxX, float maxY, int id) {
+    int findEntry(Rectangle a_Rect) {
     for (int i = 0; i < entryCount; i++) {
-    	if (id == ids[i] &&
-          entriesMinX[i] == minX && entriesMinY[i] == minY &&
-          entriesMaxX[i] == maxX && entriesMaxY[i] == maxY) {
-    	  return i;
-    	}
+        if ( NodeRect[i].equals(a_Rect)) {
+          return i;
+        }
     }
     return -1;
-  }
+    }
 
   // delete entry. This is done by setting it to null and copying the last entry into its space.
   void deleteEntry(int i) {
 	  int lastIndex = entryCount - 1;
-    float deletedMinX = entriesMinX[i];
-    float deletedMinY = entriesMinY[i];
-    float deletedMaxX = entriesMaxX[i];
-    float deletedMaxY = entriesMaxY[i];
+
+      Rectangle deleteRect = NodeRect[lastIndex];
 
     if (i != lastIndex) {
-      entriesMinX[i] = entriesMinX[lastIndex];
-      entriesMinY[i] = entriesMinY[lastIndex];
-      entriesMaxX[i] = entriesMaxX[lastIndex];
-      entriesMaxY[i] = entriesMaxY[lastIndex];
-    	ids[i] = ids[lastIndex];
-	  }
+        NodeRect[i] = NodeRect[lastIndex];
+	}
     entryCount--;
 
     // adjust the MBR
-    recalculateMBRIfInfluencedBy(deletedMinX, deletedMinY, deletedMaxX, deletedMaxY);
+    recalculateMBRIfInfluencedBy(deleteRect);
+    NodeRect[lastIndex] = null;
+
   }
 
   // deletedMin/MaxX/Y is a rectangle that has just been deleted or made smaller.
   // Thus, the MBR is only recalculated if the deleted rectangle influenced the old MBR
-  void recalculateMBRIfInfluencedBy(float deletedMinX, float deletedMinY, float deletedMaxX, float deletedMaxY) {
-    if (mbrMinX == deletedMinX || mbrMinY == deletedMinY || mbrMaxX == deletedMaxX || mbrMaxY == deletedMaxY) {
-      recalculateMBR();
+    void recalculateMBRIfInfluencedBy(Rectangle a_DeleteRect) {
+
+        Rectangle Rect = (Rectangle)this;
+        for(int i=0; i< Rect.dim; i++){
+            Rect.min.setCurrDimComp(i);
+
+        if (Rect.min.comapreTo(a_DeleteRect.min ) == 0 || Rect.max.comapreTo( a_DeleteRect.max ) ==0 ){
+            recalculateMBR();
+            return;
+        }
     }
-  }
 
   void recalculateMBR() {
     mbrMinX = entriesMinX[0];
