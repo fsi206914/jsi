@@ -10,9 +10,9 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
     public int dim;
 
     private Class own;
-    private final Class nameDouble = Double.class;
-    private final Class nameInt = Integer.class;
-    private final Class nameFloat = Float.class;
+    public final Class nameDouble = Double.class;
+    public final Class nameInt = Integer.class;
+    public final Class nameFloat = Float.class;
 
     public final class hyperplane{
 
