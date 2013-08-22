@@ -3,19 +3,6 @@
 //   Copyright (C) 2002-2005 Infomatiq Limited
 //   Copyright (C) 2008-2010 aled@sourceforge.net
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License, or (at your option) any later version.
-//
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 package com.liang.jsi.rtree;
 
@@ -40,8 +27,9 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
     int maxEntryCount;
 
     Node parent;
-    LinkedList<Node> children;
+    public LinkedList<Node> children;
     Rectangle[] NodeRect;
+    public boolean leaf;
 
     public Node(Class T, int ndims, int a_maxNodeEntries) {
         super(T,ndims);
@@ -50,6 +38,12 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
         children = new LinkedList<Node>();
         NodeRect = new Rectangle[maxEntryCount];
         entryCount=0;
+        leaf = true;
+    }
+
+    public Node(Class T, int ndims, int a_maxNodeEntries, boolean a_leaf) {
+        this(T, ndims, a_maxNodeEntries);
+        leaf = leaf;
     }
 
     void addEntry(Rectangle a_Rect) {

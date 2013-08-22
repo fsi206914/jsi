@@ -1,8 +1,13 @@
 // Hyper-Rectangle class supporting KDTree class
 
 package com.liang.jsi;
+import com.liang.jsi.GenericPoint;
+import gnu.trove.list.TLinkable;
+import java.io.Serializable;
 
-public class Rectangle< Coord extends Comparable<? super Coord>> {
+
+public class Rectangle< Coord extends Comparable<? super Coord>> implements
+    Serializable, TLinkable<Rectangle <Coord>>{
 
     public GenericPoint min;
     public GenericPoint max;
@@ -13,6 +18,32 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
     public final Class nameDouble = Double.class;
     public final Class nameInt = Integer.class;
     public final Class nameFloat = Float.class;
+
+    private Rectangle previous;
+    private Rectangle next;
+    private long code;
+
+    public Rectangle getNext(){
+
+        return this.next;
+    }
+
+    public Rectangle getPrevious(){
+
+        return this.previous;
+    }
+
+    public void setPrevious(Rectangle a_prev){
+
+        previous = a_prev;
+    }
+
+    public void setNext(Rectangle a_next){
+
+        this.next = a_next;
+    }
+
+
 
     public final class hyperplane{
 
@@ -41,7 +72,30 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
     }
 
 
+    public Rectangle() {
+    }
+
+    public static boolean isOverlap( Rectangle p_Rect, Rectangle q_Rect){
+
+    if( p_Rect.intersects(q_Rect) ) return true;
+    else if ( p_Rect.contains(q_Rect) )  return true;
+    else if ( p_Rect.containedBy(q_Rect) )  return true;
+    else return false;
+
+    }
+
+
     public Rectangle(Class T, int ndims) {
+
+        dim = ndims;
+        if(  (T!= nameDouble) &&  (T!=nameInt) && (T!=nameFloat) )
+            System.out.println("The type can not be supported");
+        else
+            {own = T; init();}
+
+    }
+
+    public void setRectangle(Class T, int ndims) {
 
         dim = ndims;
         if(  (T!= nameDouble) &&  (T!=nameInt) && (T!=nameFloat) )
@@ -53,9 +107,8 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
 
     public void set(GenericPoint a_min, GenericPoint a_max) {
 
-        min = a_min;
-        max = a_max;
-
+        min.setCoord( a_min);
+        max.setCoord( a_max);
     }
 
     public void set(Rectangle a_rect) {
@@ -104,6 +157,17 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
         return ret;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        boolean equals = false;
+        if (o instanceof Rectangle) {
+           Rectangle r = (Rectangle) o;
+           if(min.equals(r.min) && max.equals(r.max) )
+              equals = true;
+        }
+        return equals;
+    }
+
 
     public String toString() {
         return "A rectangle: " + min.toString() + "   " + max.toString() + "\n";
@@ -112,6 +176,7 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
     public int compareTo(Rectangle a_Rect) {
         return 1;
     }
+
 
 
     public static void main(String args[]){
@@ -124,10 +189,10 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
 
 
     GenericPoint<Integer> aa = new GenericPoint(Integer.class, 3);
-    aa.setCoord(0, 2);aa.setCoord(1, 2);aa.setCoord(2, 2);
+    aa.setCoord(0, 1);aa.setCoord(1, 1);aa.setCoord(2, 1);
 
     GenericPoint<Integer> bb = new GenericPoint(Integer.class, 3);
-    bb.setCoord(0, 3);bb.setCoord(1, 3);bb.setCoord(2, 3);
+    bb.setCoord(0, 4);bb.setCoord(1, 4);bb.setCoord(2, 3);
 
 
     Rectangle Rect = new Rectangle(Integer.class, 3);
@@ -136,7 +201,7 @@ public class Rectangle< Coord extends Comparable<? super Coord>> {
     Rectangle RRect = new Rectangle(Integer.class, 3);
     RRect.set(aa,bb);
 
-    System.out.println(RRect.containedBy(Rect));
+    System.out.println(RRect.equals(Rect));
 
     }
 }

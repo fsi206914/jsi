@@ -92,6 +92,20 @@ public class GenericPoint< Coord extends Comparable<? super Coord>>
     public int getDimensions() { return __coordinates.length; }
 
 
+    public boolean equals(Object obj) {
+        if(!(obj instanceof GenericPoint))
+            return false;
+
+        GenericPoint point = (GenericPoint)obj;
+
+        for(int i = 0; i < __coordinates.length; ++i)
+            if(!__coordinates[i].equals(point.getCoord(i)))
+            return false;
+
+        return true;
+    }
+
+
     /**
     * Returns a string representation of the point, listing its
     * coordinate values in order.
