@@ -4,7 +4,8 @@ package com.liang.jsi;
 import com.liang.jsi.GenericPoint;
 import gnu.trove.list.TLinkable;
 import java.io.Serializable;
-
+import java.math.BigDecimal;
+import com.liang.jsi.Arithmetic;
 
 public class Rectangle< Coord extends Comparable<? super Coord>> implements
     Serializable, TLinkable<Rectangle <Coord>>{
@@ -44,7 +45,6 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
     }
 
 
-
     public final class hyperplane{
 
         int planeDim;
@@ -70,7 +70,6 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
         newRect.set(this);
         return newRect;
     }
-
 
     public Rectangle() {
     }
@@ -156,6 +155,38 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
         }
         return ret;
     }
+
+    public double getRequiredExpansion(Rectangle a_Rect)
+    {
+    double area = getArea();
+    double expanded = 1.0f;
+
+    for (int i = 0; i < dim; i++)
+    {
+        double max_i = Arithmetic.MAX( this.max.getCoord(i), a_Rect.max.getCoord(i) );
+        double min_i = Arithmetic.MIN( this.min.getCoord(i), a_Rect.min.getCoord(i) );
+
+        expanded *= (max_i-min_i);
+    }
+
+    return (expanded - area - a_Rect.getArea());
+    }
+
+
+    public double getArea()
+    {
+    double area = 1.0f;
+    for (int i = 0; i < dim; i++)
+    {
+      area *= Arithmetic.subtract( max.getCoord(i), min.getCoord(i) );
+    }
+    return area;
+    }
+
+    public Class getClassName(){
+        return this.own;
+    }
+
 
     @Override
     public boolean equals(Object o) {

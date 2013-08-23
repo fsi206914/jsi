@@ -46,6 +46,11 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
         leaf = leaf;
     }
 
+    public Node(Node a_Node) {
+        this( ((Rectangle)a_Node).getClassName(), a_Node.dim, a_Node.maxEntryCount, true);
+    }
+
+
     void addEntry(Rectangle a_Rect) {
         NodeRect[entryCount] = a_Rect;
         entryCount++;
@@ -126,26 +131,15 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
           }
     }
 
-//  /**
-//   * eliminate null entries, move all entries to the start of the source node
-//   */
-//  void reorganize(RTree rtree) {
-//    int countdownIndex = rtree.maxNodeEntries - 1;
-//    for (int index = 0; index < entryCount; index++) {
-//      if (ids[index] == -1) {
-//         while (ids[countdownIndex] == -1 && countdownIndex > index) {
-//           countdownIndex--;
-//         }
-//         entriesMinX[index] = entriesMinX[countdownIndex];
-//         entriesMinY[index] = entriesMinY[ ];
-//         entriesMaxX[index] = entriesMaxX[countdownIndex];
-//         entriesMaxY[index] = entriesMaxY[countdownIndex];
-//         ids[index] = ids[countdownIndex];
-//         ids[countdownIndex] = -1;
-//      }
-//    }
-//  }
-//
+
+    public double getArea(){
+        return ((Rectangle)this).getArea();
+    }
+
+    public double getRequiredExpansion(Node a_Node){
+        return ((Rectangle)this).getRequiredExpansion((Rectangle)a_Node);
+    }
+
 //  public int getEntryCount() {
 //    return entryCount;
 //  }
