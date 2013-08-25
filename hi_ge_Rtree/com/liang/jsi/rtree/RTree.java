@@ -25,7 +25,7 @@ import com.liang.jsi.rtree.Node;
 
 public class RTree< Coord extends Comparable<? super Coord>> implements  Serializable {
 
-    private static final long serialVersionUID = 5946232781609920309L;
+    private static final long serialVersionUID = 59462327816090309L;
     private static final Logger log = LoggerFactory.getLogger(RTree.class);
     private static final Logger deleteLog = LoggerFactory.getLogger(RTree.class.getName() + "-delete");
 
@@ -99,10 +99,11 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
 
     public void insert(Rectangle a_Rect)
     {
-    assert (a_Rect.dim == numDims);
+    assert (a_Rect.dim == numDims): "The number of dim in Rtree is different from the one in new inserted rectangle";
 
     Node oneLeaf = chooseLeaf(root);
-    oneLeaf.children.add( a_Rect );
+    Node InsertedNode = new Node(a_Rect, this.maxNodeEntries);
+    oneLeaf.children.add( InsertedNode );
     ((Node) oneLeaf.children.getLast() ).parent = oneLeaf;
 
     if (oneLeaf.children.size() > maxNodeEntries)
@@ -137,6 +138,7 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     return chooseLeaf(next);
 
   }
+
 
 
   private Node[] splitNode(Node a_leaf)
@@ -254,7 +256,25 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     return bestPair;
   }
 
-
+    private Node qPickNext(LinkedList<Node> cc, Node[] nn)
+    {
+    double maxDiff = -1.0f * Double.MAX_VALUE;
+    Node nextC = null;
+    for ( Node c: cc )
+    {
+      double n0Exp = nn[0].getRequiredExpansion(c);
+      double n1Exp = nn[1].getRequiredExpansion(c);
+      double diff = Math.abs(n1Exp - n0Exp);
+      if (diff > maxDiff)
+      {
+        maxDiff = diff;
+        nextC = c;
+      }
+    }
+    assert (nextC != null) : "No node selected from qPickNext";
+    cc.remove(nextC);
+    return nextC;
+    }
 
     private void tighten(Node... nodes)
     {
@@ -298,13 +318,56 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     }
     }
 
-    public static void main(String args[]){
 
-    RTree a = new RTree(3);
-    System.out.println( a.root.children.getClass().toString() );
+    public static void main(String[] args){
+
+    GenericPoint<Double> a1 = new GenericPoint(Double.class, 2);
+    a1.setCoord(0, 0.0);a1.setCoord(1, 0.0);
+    //a1.setCoord(2, 1);
+
+    GenericPoint<Double> a2 = new GenericPoint(Double.class, 2);
+    a2.setCoord(0, 2.0);a2.setCoord(1, 1.0);
+    //a2.setCoord(2, 4);
+
+    GenericPoint<Double> b1 = new GenericPoint(Double.class, 2);
+    b1.setCoord(0, 3.0);b1.setCoord(1, 1.0);
+    //b1.setCoord(2, 1);
+
+    GenericPoint<Double> b2 = new GenericPoint(Double.class, 2);
+    b2.setCoord(0, 4.0);b2.setCoord(1, 2.0);
+    //b2.setCoord(2, 3);
+
+    GenericPoint<Double> c1 = new GenericPoint(Double.class, 2);
+    c1.setCoord(0, 0.0);c1.setCoord(1, 3.0);
+    //c1.setCoord(2, 1);
+
+    GenericPoint<Double> c2 = new GenericPoint(Double.class, 2);
+    c2.setCoord(0, 2.0);c2.setCoord(1, 4.0);
+    //c2.setCoord(2, 3);
+
+    GenericPoint<Double> d1 = new GenericPoint(Double.class, 2);
+    d1.setCoord(0, 3.0);d1.setCoord(1, 1.0);
+    //d1.setCoord(2, 1);
+
+    GenericPoint<Double> d2 = new GenericPoint(Double.class, 2);
+    d2.setCoord(0, 4.0);d2.setCoord(1, 2.0);
+    //d2.setCoord(2, 3);
+
+    Rectangle A = new Rectangle(Double.class, 2);
+    A.set(a1,a2);
+
+    Rectangle B = new Rectangle(Double.class, 2);
+    B.set(b1,b2);
+
+    Rectangle C = new Rectangle(Double.class, 2);
+    C.set(c1,c2);
+
+
+    RTree<Double> rtree = new RTree<Double>(2);
+
+    rtree.insert(A);
+    rtree.insert(B);
+    rtree.insert(C);
 
     }
-
-
-
 }
