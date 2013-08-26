@@ -6,6 +6,7 @@ import gnu.trove.list.TLinkable;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import com.liang.jsi.Arithmetic;
+import java.lang.reflect.Array;
 
 public class Rectangle< Coord extends Comparable<? super Coord>> implements
     Serializable, TLinkable<Rectangle <Coord>>{
@@ -59,9 +60,36 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
     }
 
     public void init() {
-
         min = new GenericPoint(own, this.dim);
         max = new GenericPoint(own, this.dim);
+        MinMaxInit();
+    }
+
+    public void MinMaxInit(){
+
+//    Coord[] MinAndMax;
+//    MinAndMax  = (Coord[]) Array.newInstance(own, 2);
+//
+//    Object temp_max = Class.forName(own).getConstructor(String.class).newInstance("1");
+
+    if(own == nameDouble) infiniteHRectDouble();
+    else infiniteHRectInteger();
+    }
+
+    public void infiniteHRectDouble() {
+
+        for (int i=0; i<dim; ++i) {
+            min.setCoord(i, 1000.0);
+            max.setCoord(i, -1000.0);
+        }
+    }
+
+    public void infiniteHRectInteger() {
+
+        for (int i=0; i<dim; ++i) {
+            min.setCoord(i, 1000);
+            max.setCoord(i, -1000);
+        }
     }
 
     public Rectangle copy() {
@@ -158,7 +186,7 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
 
     public double getRequiredExpansion(Rectangle a_Rect)
     {
-    double area = getArea();
+    double area = getRectArea();
     double expanded = 1.0f;
 
     for (int i = 0; i < dim; i++)
@@ -169,16 +197,23 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
         expanded *= (max_i-min_i);
     }
 
-    return (expanded - area - a_Rect.getArea());
+    return (expanded - area - a_Rect.getRectArea());
     }
 
 
-    public double getArea()
+    public double getRectArea()
     {
     double area = 1.0f;
     for (int i = 0; i < dim; i++)
     {
-      area *= Arithmetic.subtract( max.getCoord(i), min.getCoord(i) );
+        try {
+        area *= Arithmetic.subtract( max.getCoord(i), min.getCoord(i) );
+        }catch(StackOverflowError t) {
+            System.out.println(max.toString() + "   "+ min.toString());
+            t.printStackTrace();
+            System.exit(0);
+
+        }
     }
     return area;
     }

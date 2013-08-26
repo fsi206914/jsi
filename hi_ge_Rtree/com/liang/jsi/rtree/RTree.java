@@ -104,12 +104,19 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     Node oneLeaf = chooseLeaf(root);
     Node InsertedNode = new Node(a_Rect, this.maxNodeEntries);
     oneLeaf.children.add( InsertedNode );
+
+    log.info(" oneLeaf's ID = "+ oneLeaf.NodeID + "   InsertedNode's ID = " + InsertedNode.NodeID);
+
+
     ((Node) oneLeaf.children.getLast() ).parent = oneLeaf;
 
     if (oneLeaf.children.size() > maxNodeEntries)
     {
       Node[] splits = splitNode(oneLeaf);
       adjustTree(splits[0], splits[1]);
+      log.info(" splits[0] ID = "+ splits[0].NodeID + "   splits[1] ID = " + splits[1].NodeID);
+      printAllNodes(splits);
+
     }
     else
     {
@@ -150,16 +157,26 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     @SuppressWarnings("unchecked")
     Node[] newNodes = new Node[]
     { a_leaf, new Node( a_leaf ) };
-    newNodes[1].parent = a_leaf.parent;
     if (a_leaf.parent != null)
     {
-      a_leaf.parent.children.add(newNodes[1]);
+        newNodes[0].parent = newNodes[1].parent = a_leaf.parent;
     }
+    else{
+        newNodes[0].parent = newNodes[1].parent = this.root;
+
+    }
+
     LinkedList<Node> cc = new LinkedList<Node>(a_leaf.children);
-    a_leaf.children.clear();
+    System.out.println("CC.size() = " + cc.size());
+    a_leaf.children.clear(); newNodes[0].children.clear(); newNodes[1].children.clear();
+    newNodes[0].parent.children.add(newNodes[1]);
+
     Node[] firstTwo =  qPickSeeds(cc);
     newNodes[0].children.add(firstTwo[0]);
     newNodes[1].children.add(firstTwo[1]);
+
+    printAllNodes(firstTwo);
+
     tighten(newNodes);
     Random random = new Random();
     while (!cc.isEmpty())
@@ -282,6 +299,14 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
         for (Node n: nodes) {
           assert(n.children.size() > 0) : "tighten() called on empty node!";
           n.recalculateMBR();
+        }
+    }
+
+    private void printAllNodes(Node... nodes)
+    {
+        assert(nodes.length >= 1): "Pass some nodes to tighten!";
+        for (Node n: nodes) {
+          n.printInfo();
         }
     }
 
