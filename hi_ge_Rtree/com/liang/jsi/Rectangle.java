@@ -196,7 +196,6 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
 
         expanded *= (max_i-min_i);
     }
-
     return (expanded - area - a_Rect.getRectArea());
     }
 

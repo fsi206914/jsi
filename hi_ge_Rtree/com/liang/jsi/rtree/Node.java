@@ -32,8 +32,11 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
     Rectangle[] NodeRect;
     public boolean leaf;
 
+    public boolean entry = false;
+
     public Node(Class T, int ndims, int a_maxNodeEntries) {
         super(T,ndims);
+        System.out.println(T);
         parent = null;
         maxEntryCount = a_maxNodeEntries;
         children = new LinkedList<Node>();
@@ -109,6 +112,9 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
 
     void recalculateMBR() {
 
+        System.out.println(this.min.toString());
+        System.out.println(((Rectangle)children.get(0)).min.toString());
+
         this.min.setCoord( ((Rectangle)children.get(0)).min   );
         this.max.setCoord( ((Rectangle)children.get(0)).max   );
         for (int i = 1; i < children.size(); i++)
@@ -126,8 +132,6 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
               if(this.max.compareTo(  Rect_max    ) < 0 )
                 this.max.setCoord( j, Rect_max.getCoord(j));
           }
-        System.out.println("min = " + this.min.toString()+ "max = " + this.max.toString() );
-
     }
 
 
@@ -166,8 +170,13 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
         return ((Rectangle)this).getRequiredExpansion((Rectangle)a_Node);
     }
 
-    public void printInfo(){
-        System.out.println(" NodeID = " + this.NodeID + " this.min =  " + this.min.toString()+   " this.max =  " + this.max.toString() );
+    public String printInfo(){
+        return " NodeID = " + this.NodeID + " this.min =  " + this.min.toString()+   " this.max =  " + this.max.toString() + "  this.leaf =" + this.leaf;
+    }
+
+
+    public String toString(){
+        return this.printInfo();
     }
 
 //    public void update (){

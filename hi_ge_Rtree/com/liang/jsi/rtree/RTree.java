@@ -36,28 +36,36 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     int maxNodeEntries;
     int minNodeEntries;
     int numDims;
-    private final Class own = Double.class;
+    public Class own = Double.class;
     public Node root;
 
     public enum SeedPicker { LINEAR, QUADRATIC }
     private final SeedPicker seedPicker;
 
 
-    public RTree(int maxEntries, int minEntries, int numDims, SeedPicker seedPicker)
+    public RTree(int maxEntries, int minEntries, int numDims, SeedPicker seedPicker, Class a_own)
     {
     assert (minEntries <= (maxEntries / 2));
     this.numDims = numDims;
     this.maxNodeEntries = maxEntries;
     this.minNodeEntries = minEntries;
     this.seedPicker = seedPicker;
+    this.own = a_own;
 
     root = buildRoot(true);
-    }
+    System.out.println(root.toString());
 
+    }
 
     public RTree(int numDims)
     {
-        this(DEFAULT_MAX_NODE_ENTRIES, DEFAULT_MIN_NODE_ENTRIES, numDims, RTree.SeedPicker.QUADRATIC);
+
+        this(DEFAULT_MAX_NODE_ENTRIES, DEFAULT_MIN_NODE_ENTRIES, numDims, RTree.SeedPicker.QUADRATIC, Double.class);
+    }
+
+    public RTree(int numDims, Class a_own)
+    {
+        this(DEFAULT_MAX_NODE_ENTRIES, DEFAULT_MIN_NODE_ENTRIES, numDims, RTree.SeedPicker.QUADRATIC, a_own);
     }
 
 
@@ -104,33 +112,18 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
 
     Node oneLeaf = chooseLeaf(root, a_Rect);
     Node InsertedNode = new Node(a_Rect, this.maxNodeEntries);
+    InsertedNode.entry = true;
     oneLeaf.children.add( InsertedNode );
-
-    log.info(" oneLeaf's ID = "+ oneLeaf.NodeID + "   InsertedNode's ID = " + InsertedNode.NodeID);
-    System.out.println(oneLeaf.toString());
-
 
     ((Node) oneLeaf.children.getLast() ).parent = oneLeaf;
 
     if (oneLeaf.children.size() > maxNodeEntries)
     {
       Node[] splits = splitNode(oneLeaf);
-
-    System.out.println("---------------after split");
-    System.out.println(this.toString());
-
       adjustTree(splits[0], splits[1]);
-      log.info(" splits[0] ID = "+ splits[0].NodeID + "   splits[1] ID = " + splits[1].NodeID);
-      printAllNodes(splits);
-
     }
     else
-    {
       adjustTree(oneLeaf, null);
-    }
-    System.out.println("---------------after adjust");
-    System.out.println(this.toString());
-
     }
 
 
@@ -160,10 +153,6 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
 
   private Node[] splitNode(Node a_leaf)
   {
-    // TODO: this class probably calls "tighten" a little too often.
-    // For instance the call at the end of the "while (!cc.isEmpty())" loop
-    // could be modified and inlined because it's only adjusting for the addition
-    // of a single node.  Left as-is for now for readability.
     @SuppressWarnings("unchecked")
     Node[] newNodes = new Node[]
     { new Node( a_leaf ), new Node( a_leaf ) };
@@ -177,7 +166,12 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     if(newNodes[0].parent.leaf == true) newNodes[0].parent.leaf=false;
 
     LinkedList<Node> cc = new LinkedList<Node>(a_leaf.children);
-    System.out.println("CC.size() = " + cc.size());
+
+    if( a_leaf.children.size()>0  && !((Node)a_leaf.children.getFirst()).entry )
+    {
+         newNodes[0].leaf = false;newNodes[1].leaf = false;
+    }
+
     a_leaf.children.clear(); newNodes[0].children.clear(); newNodes[1].children.clear();
     newNodes[0].parent.children.remove(a_leaf);
     newNodes[0].parent.children.add(newNodes[1]);
@@ -186,6 +180,7 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     Node[] firstTwo =  qPickSeeds(cc);
     newNodes[0].children.add(firstTwo[0]);
     newNodes[1].children.add(firstTwo[1]);
+
 
     printAllNodes(firstTwo);
 
@@ -330,7 +325,7 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
       if (newNode != null)
       {
         // build new root and add children.
-        System.out.println("access not area");
+        System.out.println("unchecked area");
         root = buildRoot(false);
         root.children.add(n);
         n.parent = root;
@@ -346,8 +341,6 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
       tighten(newNode);
       if (n.parent.children.size() > this.maxNodeEntries)
       {
-        System.out.println("n.parent.children.size() > this.maxNodeEntries");
-
         Node[] splits = splitNode(n.parent);
         adjustTree(splits[0], splits[1]);
       }
@@ -355,8 +348,6 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     if (n.parent != null)
     {
       adjustTree(n.parent, null);
-      System.out.println("n.parent != null");
-
     }
     }
 
@@ -372,10 +363,13 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
 
             if (node.parent!=null) {
 
-                builder.append(prefix + (isTail ? "{ tail---" : "$--- ") + "[  ] " + "Rectangle=" + node.printInfo() );
+                if(node.entry)
+                    builder.append(prefix + "Entry" + "$--- " + "[  ] " + "Rectangle=" + node.printInfo() );
+                else
+                    builder.append(prefix + "     " + "$--- " + "[  ] " + "Rectangle=" + node.printInfo() );
                 builder.append("\n");
             } else {
-                builder.append("Root : " + (isTail ? "{ tail--- " : "$--- ") + "  Rectangle =" + node.printInfo() +  "\n");
+                builder.append("Root:" +   "$--- " + "  Rectangle =" + node.printInfo() +  "\n");
             }
             List<Node> children = null;
             children = new ArrayList<Node>( node.maxEntryCount );
@@ -388,14 +382,12 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
 
             if (children != null) {
                 for (int i = 0; i < children.size(); i++) {
-                    if( children.get(i).leaf == true )
-                        builder.append(getString(children.get(i), prefix + "Leaf  ", false));
+                    if( children.get(i).entry == true )
+                        builder.append(getString(children.get(i), prefix + "  ", true));
                     else
-                        builder.append(getString(children.get(i), prefix + "middle  ", false));
+                        builder.append(getString(children.get(i), prefix+ "  ",  false));
                 }
             }
-
-
             return builder.toString();
         }
     }
@@ -473,6 +465,6 @@ public class RTree< Coord extends Comparable<? super Coord>> implements  Seriali
     rtree.insert(D);
     rtree.insert(E);
 
-//    System.out.println(rtree.toString());
+    System.out.println(rtree.toString());
     }
 }
