@@ -36,7 +36,7 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
 
     public Node(Class T, int ndims, int a_maxNodeEntries) {
         super(T,ndims);
-        System.out.println(T);
+        //System.out.println(T);
         parent = null;
         maxEntryCount = a_maxNodeEntries;
         children = new LinkedList<Node>();
@@ -112,8 +112,8 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
 
     void recalculateMBR() {
 
-        System.out.println(this.min.toString());
-        System.out.println(((Rectangle)children.get(0)).min.toString());
+        //System.out.println(this.min.toString());
+        //System.out.println(((Rectangle)children.get(0)).min.toString());
 
         this.min.setCoord( ((Rectangle)children.get(0)).min   );
         this.max.setCoord( ((Rectangle)children.get(0)).max   );
@@ -157,7 +157,7 @@ public class Node< Coord extends Comparable<? super Coord>> extends Rectangle {
         try {
         ret = ((Rectangle)this).getRectArea();
         }catch(StackOverflowError t) {
-            System.out.println("in Node.java  "+max.toString() + "   "+ min.toString());
+            //System.out.println("in Node.java  "+max.toString() + "   "+ min.toString());
             t.printStackTrace();
             System.exit(0);
 

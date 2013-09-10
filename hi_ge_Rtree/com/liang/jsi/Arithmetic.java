@@ -66,6 +66,7 @@ public class Arithmetic{
     {
 
         String a_string, b_string;
+
         try{
             a_string = convert (a , String.class  );
             b_string = convert (b , String.class  );
@@ -74,7 +75,7 @@ public class Arithmetic{
             System.out.println("Something Wrong in subtract conversion ");
             return 1.00;
         }
-
+		
         double ret = Math.max(Double.parseDouble(a_string), Double.parseDouble(b_string));
         return ret;
     }

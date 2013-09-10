@@ -206,9 +206,9 @@ public class Rectangle< Coord extends Comparable<? super Coord>> implements
     for (int i = 0; i < dim; i++)
     {
         try {
-        area *= Arithmetic.subtract( max.getCoord(i), min.getCoord(i) );
+		area *= Arithmetic.subtract( max.getCoord(i), min.getCoord(i) );
         }catch(StackOverflowError t) {
-            System.out.println(max.toString() + "   "+ min.toString());
+			System.out.println(max.toString() + "   "+ min.toString());
             t.printStackTrace();
             System.exit(0);
 
