@@ -1,0 +1,5 @@
+This library implements a high-dimensional Rtree. It is aimed to maintain a high performance Java version of the RTree spatial indexing algorithm as described in the 1984 paper "R-trees: A Dynamic Index Structure for Spatial Searching" by Antonin Guttman.
+
+Meanwhile, Java Generics is introduced to guarantee any data type could be index for RTree.
+
+Briefly, use "make compile" to compile the code, and "make rtreeMain" to execute a example rTree.
